@@ -1,10 +1,24 @@
 import { DiVisualstudio } from "react-icons/di";
 import AppCard from "../ui/AppCard";
-
-import { useLoaderData } from "react-router";
+import { useEffect, useState } from "react";
 
 const AllAppsPage = () => {
-  const apps = useLoaderData();
+  const [apps, setApps] = useState([]);
+  const [totalApps, setTotalApps] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
+  const [currentPage,setCurrentPage] = useState(0)
+  const limit = 10;
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${currentPage*limit}`)
+      .then(res => res.json())
+      .then(data => {
+        setApps(data.apps);
+        setTotalApps(data.total);
+        const page = Math.ceil(data.total / limit);
+        setTotalPage(page);
+      });
+  }, [currentPage]);
   return (
     <div>
       <title>All Apps | Hero Apps</title>
@@ -12,7 +26,9 @@ const AllAppsPage = () => {
       <div className="py-16">
         <h2 className="text-4xl font-bold text-center text-primary flex justify-center gap-3">
           Our All Applications
-          <DiVisualstudio size={48} className="text-secondary"></DiVisualstudio>
+          <DiVisualstudio
+            size={48}
+            className="text-secondary"></DiVisualstudio>
         </h2>
         <p className="text-center text-gray-400">
           Explore All Apps on the Market developed by us. We code for Millions
@@ -22,7 +38,7 @@ const AllAppsPage = () => {
       <div className="w-11/12 mx-auto flex flex-col-reverse lg:flex-row gap-5 items-start justify-between lg:items-end mt-10">
         <div>
           <h2 className="text-lg underline font-bold">
-            ({apps.length}) Apps Found
+            ({totalApps}) Apps Found
           </h2>
         </div>
 
@@ -31,34 +47,43 @@ const AllAppsPage = () => {
             <svg
               className="h-[1em] opacity-50"
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <g
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 strokeWidth="2.5"
                 fill="none"
-                stroke="currentColor"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
+                stroke="currentColor">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"></circle>
                 <path d="m21 21-4.3-4.3"></path>
               </g>
             </svg>
-            <input type="search" className="" placeholder="Search Apps" />
+            <input
+              type="search"
+              className=""
+              placeholder="Search Apps"
+            />
           </label>
         </form>
 
         <div className="">
-          <select className="select bg-white">
-            <option selected disabled={true}>
-              Sort by <span className="text-xs">R / S / D</span>
+          <select
+            className="select bg-white"
+            defaultValue="">
+            <option
+              value=""
+              disabled>
+              Sort by R / S / D
             </option>
-            <option value={"rating-desc"}>Ratings : High - Low</option>
-            <option value={"rating-asc"}>Ratings : Low - High</option>
-            <option value={"size-desc"}>Size : High - Low</option>
-            <option value={"size-asc"}>Size : Low - High</option>
-            <option value={"downloads-desc"}>Downloads : High - Low</option>
-            <option value={"downloads-asc"}>Downloads : Low - High</option>
+            <option value="rating-desc">Ratings : High - Low</option>
+            <option value="rating-asc">Ratings : Low - High</option>
+            <option value="size-desc">Size : High - Low</option>
+            <option value="size-asc">Size : Low - High</option>
+            <option value="downloads-desc">Downloads : High - Low</option>
+            <option value="downloads-asc">Downloads : Low - High</option>
           </select>
         </div>
       </div>
@@ -74,10 +99,19 @@ const AllAppsPage = () => {
               <button className="btn btn-primary">Show All Apps</button>
             </div>
           ) : (
-            apps.map((app) => <AppCard key={app.id} app={app}></AppCard>)
+            apps.map(app => (
+              <AppCard
+                key={app.id}
+                app={app}></AppCard>
+            ))
           )}
         </div>
       </>
+      <div className="flex justify-center flex-wrap gap-3">
+        {[...Array(totalPage).keys()].map((btn, i) => (
+          <button className="btn" key={i}>{btn}</button>
+        ))}
+      </div>
     </div>
   );
 };
