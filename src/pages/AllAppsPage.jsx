@@ -1,16 +1,19 @@
 import { DiVisualstudio } from "react-icons/di";
 import AppCard from "../ui/AppCard";
 import { useEffect, useState } from "react";
+import button from "daisyui/components/button";
 
 const AllAppsPage = () => {
   const [apps, setApps] = useState([]);
   const [totalApps, setTotalApps] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
-  const [currentPage,setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(0);
   const limit = 10;
 
   useEffect(() => {
-    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${currentPage*limit}`)
+    fetch(
+      `http://localhost:5000/apps?limit=${limit}&skip=${currentPage * limit}`
+    )
       .then(res => res.json())
       .then(data => {
         setApps(data.apps);
@@ -108,9 +111,28 @@ const AllAppsPage = () => {
         </div>
       </>
       <div className="flex justify-center flex-wrap gap-3">
+        {currentPage > 0 && (
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            className="btn">
+            Prev
+          </button>
+        )}
         {[...Array(totalPage).keys()].map((btn, i) => (
-          <button className="btn" key={i}>{btn}</button>
+          <button
+            onClick={() => setCurrentPage(btn)}
+            className={`btn ${btn === currentPage && "btn-primary"}`}
+            key={i}>
+            {btn + 1}
+          </button>
         ))}
+        {currentPage < totalPage - 1 && (
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            className="btn">
+            Next
+          </button>
+        )}
       </div>
     </div>
   );
