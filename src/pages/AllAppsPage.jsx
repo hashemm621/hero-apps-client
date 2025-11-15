@@ -1,18 +1,19 @@
 import { DiVisualstudio } from "react-icons/di";
 import AppCard from "../ui/AppCard";
 import { useEffect, useState } from "react";
-import button from "daisyui/components/button";
 
 const AllAppsPage = () => {
   const [apps, setApps] = useState([]);
   const [totalApps, setTotalApps] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [sort,setSort] = useState('size')
+  const [order,setOrder] = useState('')
   const limit = 10;
 
   useEffect(() => {
     fetch(
-      `http://localhost:5000/apps?limit=${limit}&skip=${currentPage * limit}`
+      `http://localhost:5000/apps?limit=${limit}&skip=${currentPage * limit}&sort=${sort}&order=${order}`
     )
       .then(res => res.json())
       .then(data => {
@@ -21,7 +22,13 @@ const AllAppsPage = () => {
         const page = Math.ceil(data.total / limit);
         setTotalPage(page);
       });
-  }, [currentPage]);
+  }, [currentPage,order,sort]);
+
+  const handleSelect = (e) =>{
+    const sortText = e.target.value
+    setSort(sortText.split('-')[0])
+    setOrder(sortText.split('-')[1])
+  }
   return (
     <div>
       <title>All Apps | Hero Apps</title>
@@ -74,6 +81,7 @@ const AllAppsPage = () => {
 
         <div className="">
           <select
+          onChange={handleSelect}
             className="select bg-white"
             defaultValue="">
             <option
@@ -104,7 +112,7 @@ const AllAppsPage = () => {
           ) : (
             apps.map(app => (
               <AppCard
-                key={app.id}
+                key={app._id}
                 app={app}></AppCard>
             ))
           )}
